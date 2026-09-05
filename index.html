@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orario Galatina - Normalizzatore</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="eyebrow">Importa, normalizza, esporta</div>
+        <h1>Sovrapposizioni</h1>
+        <p>
+          orario docente periodo a classe periodo
+        </p>
+      </section>
+
+      <section class="panel">
+        <div class="file-actions">
+          <label class="field">
+            <span>File sorgente</span>
+            <input id="fileInput" type="file" accept=".xlsx,.csv" />
+          </label>
+          <div class="actions">
+            <button id="downloadXlsxBtn" disabled>Scarica XLSX</button>
+            <button id="downloadCsvBtn" disabled>Scarica CSV</button>
+          </div>
+        </div>
+
+        <p id="status" class="status">Seleziona un file per iniziare.</p>
+      </section>
+
+      <section class="panel preview">
+        <div class="preview-header">
+          <div class="preview-title">
+            <h2>Anteprima output</h2>
+            <select id="teacherSelect" aria-label="Seleziona insegnante" hidden>
+              <option value="">Seleziona insegnante</option>
+            </select>
+          </div>
+          <div class="preview-info">
+            <span id="summary" class="summary">Clicca una riga o una colonna per evidenziarla</span>
+            <div id="teacherDetails" class="teacher-details" hidden></div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="previewTable"></table>
+        </div>
+      </section>
+
+      <section id="classListPanel" class="panel class-list-panel" hidden>
+        <div class="preview-header">
+          <h2>Classi previste nel file</h2>
+          <span id="classListSummary" class="summary"></span>
+        </div>
+        <ol id="classList" class="class-list"></ol>
+      </section>
+
+      <section id="teacherListPanel" class="panel teacher-list-panel" hidden>
+        <div class="preview-header">
+          <h2>Insegnanti</h2>
+          <span id="teacherListSummary" class="summary"></span>
+        </div>
+        <div id="teacherList" class="teacher-list"></div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
