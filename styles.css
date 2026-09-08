@@ -385,6 +385,7 @@ td.row-label { font-size: 11px; }
 .teacher-assignment { display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.08; }
 .teacher-assignment-separated { margin-top: 7px; padding-top: 6px; border-top: 1px solid rgba(31, 36, 48, .16); }
 .teacher-cell-name { font-size: 13px; font-weight: 800; }
+#previewTable .teacher-cell-name { font-size: 11px; font-weight: 400; }
 .teacher-cell-subject { font-size: 12px; font-weight: 600; color: var(--accent); white-space: normal; }
 td.is-highlighted, th.is-highlighted, td.row-label.is-highlighted {
   outline: 2px solid #7d4bb3;

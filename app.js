@@ -256,13 +256,6 @@ function renderTeacherAssignments(cell, teacherNames) {
     teacher.className = "teacher-cell-name";
     teacher.textContent = teacherName.trim();
     assignment.appendChild(teacher);
-    const subject = teacherSubjects.get(teacherKey(teacherName));
-    if (subject) {
-      const subjectEl = document.createElement("span");
-      subjectEl.className = "teacher-cell-subject";
-      subjectEl.textContent = subject;
-      assignment.appendChild(subjectEl);
-    }
     if (index < teacherNames.length - 1) assignment.classList.add("teacher-assignment-separated");
     cell.appendChild(assignment);
   });
