@@ -93,7 +93,9 @@ h1 {
 .subjects-table-wrap table { min-width: 0; table-layout: auto; }
 .subjects-table-wrap th, .subjects-table-wrap td { width: auto; min-width: 0; max-width: none; padding: 10px 12px; white-space: normal; }
 .subjects-table-wrap th { text-align: left; position: static; }
-.subjects-table-wrap td:first-child { width: 45%; font-weight: 700; }
+.subjects-table-wrap th:first-child,
+.subjects-table-wrap td:first-child { width: 55%; min-width: 150px; }
+.subjects-table-wrap td:first-child { font-weight: 700; }
 .subject-input { width: 100%; border: 1px solid var(--line); border-radius: 9px; padding: 9px 10px; background: white; color: var(--text); font: inherit; }
 
 .calendar-panel { scroll-margin-top: 16px; }
