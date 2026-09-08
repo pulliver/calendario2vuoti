@@ -1,4 +1,4 @@
-const PERIODS = [
+﻿const PERIODS = [
   "Lun1", "Lun2", "Lun3", "Lun4", "Lun5", "Lun6",
   "Mar1", "Mar2", "Mar3", "Mar4", "Mar5", "Mar6",
   "Mer1", "Mer2", "Mer3", "Mer4", "Mer5", "Mer6",
@@ -612,6 +612,16 @@ function calendarExportRows() {
   return [...calendarTable.rows].map((row) => [...row.cells].map((cell) => (cell.innerText || cell.textContent).trim().replace(/[ \t]+/g, " ")));
 }
 
+function calendarPdfRows() {
+  return [...calendarTable.rows].map((row) => [...row.cells].map((cell) => ({
+    value: (cell.innerText || cell.textContent).trim().replace(/[ \t]+/g, " "),
+    assignments: [...cell.querySelectorAll(".teacher-assignment")].map((assignment) => ({
+      teacher: assignment.querySelector(".teacher-cell-name")?.textContent?.trim() || "",
+      subject: assignment.querySelector(".teacher-cell-subject")?.textContent?.trim() || ""
+    }))
+  })));
+}
+
 function calendarFileName(extension) {
   const subject = calendarSubjectSelect.value.replace(/[^\p{L}\p{N}]+/gu, "-").replace(/(^-|-$)/g, "");
   return `${sourceName}-${calendarMode === "class" ? "classe" : "docente"}-${subject}.${extension}`;
@@ -668,7 +678,7 @@ async function exportCalendarPdf() {
   if (calendarAll) return exportAllCalendarsPdf();
   if (!window.jspdf) throw new Error("La libreria PDF non è disponibile.");
   const pdf = new window.jspdf.jsPDF({ orientation: "landscape", unit: "pt", format: "a4", compress: true });
-  drawCalendarPdfPage(pdf, calendarExportRows(), calendarDescription.textContent);
+  drawCalendarPdfPage(pdf, calendarPdfRows(), calendarDescription.textContent);
   pdf.save(calendarFileName("pdf"));
 }
 
@@ -687,13 +697,23 @@ function drawCalendarPdfPage(pdf, rows, title) {
       pdf.rect(x, y, width, rowHeight, "F");
     }
     pdf.setDrawColor(190, 190, 198); pdf.setLineWidth(.45); pdf.rect(x, y, width, rowHeight);
-    const lines = value ? pdf.splitTextToSize(value, width - 10) : [];
+    const cell = typeof value === "string" ? { value, assignments: [] } : value;
+    const lines = cell.value ? pdf.splitTextToSize(cell.value, width - 10) : [];
     pdf.setFont("helvetica", rowIndex === 0 || columnIndex === 0 || value ? "bold" : "normal");
     pdf.setFontSize(rowIndex === 0 ? 10 : 9);
     pdf.setTextColor(31, 36, 48);
     const lineHeight = 11;
     const firstY = y + rowHeight / 2 - ((lines.length - 1) * lineHeight) / 2 + 3;
-    lines.forEach((line, lineIndex) => pdf.text(line, x + width / 2, firstY + lineIndex * lineHeight, { align: "center" }));
+    if (cell.assignments.length) {
+      const assignmentLines = cell.assignments.flatMap(({ teacher, subject }) => subject ? [{ text: teacher, size: 9, color: [31, 36, 48] }, { text: subject, size: 7, color: [29, 112, 46] }] : [{ text: teacher, size: 9, color: [31, 36, 48] }]);
+      const assignmentY = y + rowHeight / 2 - ((assignmentLines.length - 1) * 9) / 2 + 3;
+      assignmentLines.forEach((line, lineIndex) => {
+        pdf.setFont("helvetica", "bold"); pdf.setFontSize(line.size); pdf.setTextColor(...line.color);
+        pdf.text(line.text, x + width / 2, assignmentY + lineIndex * 9, { align: "center" });
+      });
+    } else {
+      lines.forEach((line, lineIndex) => pdf.text(line, x + width / 2, firstY + lineIndex * lineHeight, { align: "center" }));
+    }
   }));
 }
 
@@ -706,7 +726,7 @@ async function exportAllCalendarsPdf() {
     calendarSubjectSelect.value = subjects[index];
     renderCalendar();
     if (index > 0) pdf.addPage();
-    drawCalendarPdfPage(pdf, calendarExportRows(), calendarDescription.textContent);
+    drawCalendarPdfPage(pdf, calendarPdfRows(), calendarDescription.textContent);
   }
   calendarSubjectSelect.value = originalSubject;
   renderCalendar();
@@ -825,7 +845,7 @@ async function handleGenerate() {
   appTabs.hidden = false;
   downloadXlsxBtn.disabled = false;
   downloadCsvBtn.disabled = false;
-  setStatus("Anteprima aggiornata. Per l'output è stata usata solo la prima tabella.");
+  setStatus("Anteprima aggiornata. Per l’output è stata usata solo la prima tabella.");
   heroEl.classList.add("is-collapsed");
   toggleSourceBtn.setAttribute("aria-expanded", "false");
 }
