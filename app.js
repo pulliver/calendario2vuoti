@@ -499,7 +499,7 @@ function renderCalendar() {
   const subject = calendarSubjectSelect.value;
   calendarSubjectLabel.textContent = calendarMode === "class" ? "Classe" : "Docente";
   calendarDescription.textContent = subject
-    ? calendarMode === "class" ? `Calendario della classe ${subject}: docenti nelle celle.` : `Calendario di ${subject}: classi nelle celle; i buchi sono viola.`
+    ? calendarMode === "class" ? `Calendario della Classe ${subject}` : `Calendario del docente ${subject}`
     : "Nessun dato disponibile.";
   calendarLegend.hidden = calendarMode !== "teacher";
   classCalendarTab.classList.toggle("is-active", calendarMode === "class");
@@ -526,8 +526,8 @@ function renderCalendar() {
       const td = document.createElement("td");
       const value = cells[index] || [];
       if (value.length) { td.className = "lesson-cell"; td.textContent = value.join(" · "); }
-      else if (calendarMode === "teacher" && isTeacherGap(cells, day, period)) { td.className = "calendar-gap"; td.textContent = "Buco"; }
-      else td.textContent = "—";
+      else if (calendarMode === "teacher" && isTeacherGap(cells, day, period)) { td.className = "calendar-gap"; td.textContent = ""; }
+      else td.textContent = "";
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
@@ -557,8 +557,8 @@ async function calendarCanvas() {
   rows.forEach((row, r) => row.forEach((value, c) => {
     const x = c === 0 ? 20 : 150 + (c - 1) * colWidth, y = 60 + r * 82, w = c === 0 ? 130 : colWidth;
     const isGap = value === "Buco";
-    const fill = r === 0 ? "#f3efe8" : isGap ? "#d9c5f4" : value === "—" ? "#ffffff" : "#e2f1f2";
-    body += `<rect x="${x}" y="${y}" width="${w}" height="82" fill="${fill}" stroke="#c8cbd2"/><text x="${x + w / 2}" y="${y + 44}" text-anchor="middle" font-family="Arial" font-size="${r === 0 ? 15 : 14}" font-weight="${r === 0 || value !== "—" ? 700 : 400}">${esc(value)}</text>`;
+    const fill = r === 0 || c === 0 ? "#eee8f7" : "#ffffff";
+    body += `<rect x="${x}" y="${y}" width="${w}" height="82" fill="${fill}" stroke="#c8cbd2"/><text x="${x + w / 2}" y="${y + 44}" text-anchor="middle" font-family="Arial" font-size="${r === 0 ? 15 : 14}" font-weight="${r === 0 || value ? 700 : 400}">${esc(value)}</text>`;
   }));
   const image = new Image();
   await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${body}</svg>`)}`; });

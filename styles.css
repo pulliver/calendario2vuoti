@@ -82,11 +82,13 @@ h1 {
 .calendar-exports button { padding: 9px 12px; font-size: 13px; }
 .calendar-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.75); }
 #calendarTable { min-width: 700px; table-layout: fixed; }
-#calendarTable th, #calendarTable td { width: auto; min-width: 120px; max-width: none; padding: 9px; white-space: normal; text-align: center; }
+#calendarTable th, #calendarTable td { width: auto; min-width: 120px; max-width: none; padding: 9px; white-space: normal; text-align: center; background: #fff; }
+#calendarTable th { background: rgba(125, 75, 179, .10); color: var(--text); }
 #calendarTable th:first-child, #calendarTable td.period-label { width: 112px; min-width: 112px; max-width: 112px; text-align: left; cursor: default; }
+#calendarTable td.period-label { background: rgba(125, 75, 179, .10); color: var(--text); font-weight: 700; }
 #calendarTable td { height: 58px; color: var(--muted); }
-#calendarTable td.lesson-cell { background: rgba(31, 111, 120, .11); color: var(--text); font-weight: 700; }
-#calendarTable td.calendar-gap { background: var(--violet); color: #4d2a72; font-weight: 700; }
+#calendarTable td.lesson-cell { background: #fff; color: var(--text); font-weight: 700; }
+#calendarTable td.calendar-gap { background: #fff; color: inherit; }
 .period-time { display: block; margin-top: 3px; font-size: 10px; font-weight: 400; color: var(--muted); }
 .calendar-legend { display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; color: var(--muted); font-size: 12px; margin: 12px 0 0; }
 .legend-swatch { display: inline-block; width: 13px; height: 13px; border-radius: 4px; vertical-align: -2px; margin-right: 4px; }.lesson-swatch { background: rgba(31, 111, 120, .25); }.gap-swatch { background: var(--violet); }
