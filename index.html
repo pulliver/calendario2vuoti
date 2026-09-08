@@ -10,42 +10,23 @@
     <main class="shell">
       <section class="hero">
         <div class="eyebrow">Importa, normalizza, esporta</div>
-        <h1>Sovrapposizioni v5</h1>
-        <p>
-          orario docente periodo a classe periodo
-        </p>
-      </section>
-
-      <section class="panel">
-        <div class="file-actions">
-          <label class="field">
-            <span>File sorgente</span>
-            <input id="fileInput" type="file" accept=".xlsx,.csv" />
-          </label>
-          <div class="actions">
-            <button id="downloadXlsxBtn" disabled>Scarica XLSX</button>
-            <button id="downloadCsvBtn" disabled>Scarica CSV</button>
+        <div class="hero-title-row">
+          <h1>Sovrapposizioni v5</h1>
+          <div class="file-actions">
+            <label class="field file-picker">
+              <span>Carica nuovo file</span>
+              <input id="fileInput" type="file" accept=".xlsx,.csv" />
+            </label>
+            <div class="actions">
+              <button id="downloadXlsxBtn" disabled>Scarica XLSX</button>
+              <button id="downloadCsvBtn" disabled>Scarica CSV</button>
+            </div>
+            <button id="toggleSourceBtn" class="source-toggle" type="button" aria-expanded="true" aria-label="Comprimi o espandi caricamento file">⌃</button>
           </div>
         </div>
-
-        <p id="status" class="status">Seleziona un file per iniziare.</p>
-      </section>
-
-      <section class="panel preview">
-        <div class="preview-header">
-          <div class="preview-title">
-            <h2>Anteprima output</h2>
-            <select id="teacherSelect" aria-label="Seleziona insegnante" hidden>
-              <option value="">Seleziona insegnante</option>
-            </select>
-          </div>
-          <div class="preview-info">
-            <span id="summary" class="summary">Clicca una riga o una colonna per evidenziarla</span>
-            <div id="teacherDetails" class="teacher-details" hidden></div>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table id="previewTable"></table>
+        <div id="sourceDetails">
+          <p class="hero-description">orario docente periodo a classe periodo</p>
+          <p id="status" class="status">Seleziona un file per iniziare.</p>
         </div>
       </section>
 
@@ -75,6 +56,24 @@
         <p id="calendarDescription" class="status"></p>
         <div class="calendar-table-wrap"><table id="calendarTable"></table></div>
         <p id="calendarLegend" class="calendar-legend" hidden></p>
+      </section>
+
+      <section id="previewPanel" class="panel preview" hidden>
+        <div class="preview-header">
+          <div class="preview-title">
+            <h2>Anteprima output</h2>
+            <select id="teacherSelect" aria-label="Seleziona insegnante" hidden>
+              <option value="">Seleziona insegnante</option>
+            </select>
+          </div>
+          <div class="preview-info">
+            <span id="summary" class="summary">Clicca una riga o una colonna per evidenziarla</span>
+            <div id="teacherDetails" class="teacher-details" hidden></div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="previewTable"></table>
+        </div>
       </section>
 
       <section id="supportPanel" class="panel preview support-panel" hidden>

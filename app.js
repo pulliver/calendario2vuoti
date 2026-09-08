@@ -24,6 +24,10 @@ const supportPanel = document.getElementById("supportPanel");
 const supportToggleEl = document.getElementById("supportToggle");
 const supportTableEl = document.getElementById("supportTable");
 const supportSummaryEl = document.getElementById("supportSummary");
+const heroEl = document.querySelector(".hero");
+const sourceDetailsEl = document.getElementById("sourceDetails");
+const toggleSourceBtn = document.getElementById("toggleSourceBtn");
+const previewPanel = document.getElementById("previewPanel");
 const calendarPanel = document.getElementById("calendarPanel");
 const classCalendarTab = document.getElementById("classCalendarTab");
 const teacherCalendarTab = document.getElementById("teacherCalendarTab");
@@ -737,9 +741,12 @@ async function handleGenerate() {
   buildOutput();
   renderPreview();
   outputWorkbook = await buildWorkbook();
+  previewPanel.hidden = false;
   downloadXlsxBtn.disabled = false;
   downloadCsvBtn.disabled = false;
   setStatus("Anteprima aggiornata. Per l'output è stata usata solo la prima tabella.");
+  heroEl.classList.add("is-collapsed");
+  toggleSourceBtn.setAttribute("aria-expanded", "false");
 }
 
 async function handleDownloadXlsx() {
@@ -769,6 +776,7 @@ fileInput.addEventListener("change", () => {
   downloadCsvBtn.disabled = true;
   outputWorkbook = null;
   tableEl.replaceChildren();
+  previewPanel.hidden = true;
   supportTableEl.replaceChildren();
   supportPanel.hidden = true;
   supportToggleEl.checked = false;
@@ -790,6 +798,8 @@ fileInput.addEventListener("change", () => {
     setStatus("Seleziona un file per iniziare.");
     return;
   }
+  heroEl.classList.remove("is-collapsed");
+  toggleSourceBtn.setAttribute("aria-expanded", "true");
   handleGenerate().catch((error) => {
     console.error(error);
     setStatus(error.message || "Errore durante la generazione.");
@@ -812,6 +822,10 @@ teacherSelectEl.addEventListener("change", () => {
   const teacherName = teacherSelectEl.value;
   highlightTeachers(teacherName ? [teacherName] : []);
   renderTeacherDetails(teacherName ? [teacherName] : []);
+});
+toggleSourceBtn.addEventListener("click", () => {
+  const collapsed = heroEl.classList.toggle("is-collapsed");
+  toggleSourceBtn.setAttribute("aria-expanded", String(!collapsed));
 });
 
 classCalendarTab.addEventListener("click", () => { calendarMode = "class"; renderCalendar(); });

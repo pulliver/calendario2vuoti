@@ -41,6 +41,23 @@ body {
 .hero {
   padding: 28px 30px;
 }
+.hero-title-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.hero-title-row h1 { margin-top: 10px; }
+.hero-description { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 10px 0 0; }
+.hero .file-actions { align-items: center; gap: 12px; }
+.hero .file-actions .actions { margin-left: auto; }
+.hero .file-picker { display: flex; align-items: center; gap: 8px; }
+.hero .file-picker span { white-space: nowrap; color: var(--text); font-size: 13px; font-weight: 700; }
+.hero .file-picker input { width: 285px; max-width: 285px; padding: 8px 10px; }
+.source-toggle { border: 0; background: transparent; border-radius: 50%; padding: 5px 9px; font-size: 20px; line-height: 1; color: var(--accent); }
+.hero.is-collapsed { padding-top: 14px; padding-bottom: 14px; }
+.hero.is-collapsed .eyebrow, .hero.is-collapsed #sourceDetails { display: none; }
+.hero.is-collapsed .hero-title-row h1 { margin: 0; font-size: 21px; }
+.hero.is-collapsed .file-actions { gap: 8px; }
+.hero.is-collapsed .file-picker input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.hero.is-collapsed .actions { display: none; }
+.hero.is-collapsed .file-picker span { font-weight: 600; }
+.hero.is-collapsed .source-toggle { transform: rotate(180deg); }
 
 .eyebrow {
   letter-spacing: 0.14em;
@@ -74,7 +91,7 @@ h1 {
 .calendar-tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(31, 36, 48, .08); }
 .calendar-tabs button { border: 0; border-radius: 9px; background: transparent; padding: 8px 12px; }
 .calendar-tabs button.is-active { background: white; color: var(--accent); box-shadow: 0 1px 3px rgba(31,36,48,.14); }
-.calendar-subject-field { width: min(100%, 330px); }
+.calendar-subject-field { width: min(100%, 330px); margin-right: auto; }
 .calendar-all-toggle { display: inline-flex; align-items: center; gap: 9px; margin-left: 2px; padding-bottom: 10px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .calendar-all-toggle input { appearance: none; width: 42px; height: 23px; margin: 0; border: 1px solid rgba(31,111,120,.35); border-radius: 999px; background: rgba(31,111,120,.13); position: relative; cursor: pointer; transition: background .2s ease, border-color .2s ease; }
 .calendar-all-toggle input::after { content: ""; position: absolute; width: 17px; height: 17px; left: 2px; top: 2px; border-radius: 50%; background: #fff; box-shadow: 0 2px 5px rgba(31,36,48,.22); transition: transform .2s ease; }
@@ -375,4 +392,7 @@ td.group-break, th.group-break { border-right: 3px solid rgba(31, 36, 48, 0.45);
   .teacher-details { max-width: 100%; }
   .teacher-detail-row { justify-content: flex-start; }
   .calendar-header, .calendar-controls { align-items: stretch; flex-direction: column; }
+  .calendar-subject-field { margin-right: 0; }
+  .hero-title-row { align-items: flex-start; flex-direction: column; }
+  .hero .file-actions { align-items: flex-start; flex-wrap: wrap; }
 }
