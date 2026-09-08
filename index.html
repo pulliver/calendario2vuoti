@@ -30,6 +30,20 @@
         </div>
       </section>
 
+      <nav class="app-tabs" aria-label="Sezioni applicazione">
+        <button id="scheduleTabBtn" class="is-active" type="button">Orario</button>
+        <button id="subjectsTabBtn" type="button">Materie docenti</button>
+      </nav>
+
+      <section id="subjectsPanel" class="panel subjects-panel" hidden>
+        <div class="preview-header">
+          <div><div class="eyebrow">Anagrafica docente</div><h2>Materie docenti</h2></div>
+          <label class="field subject-file-picker"><span>Carica Excel o CSV</span><input id="subjectFileInput" type="file" accept=".xlsx,.csv" /></label>
+        </div>
+        <p id="subjectsStatus" class="status">Carica un file con le colonne “nome docente” e “materia”.</p>
+        <div class="table-wrap subjects-table-wrap"><table id="subjectsTable"><thead><tr><th>Nome docente</th><th>Materia</th></tr></thead><tbody></tbody></table></div>
+      </section>
+
       <section id="calendarPanel" class="panel calendar-panel" hidden>
         <div class="calendar-header">
           <div>

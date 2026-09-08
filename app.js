@@ -40,6 +40,12 @@ const calendarImageBtn = document.getElementById("calendarImageBtn");
 const calendarXlsxBtn = document.getElementById("calendarXlsxBtn");
 const calendarPdfBtn = document.getElementById("calendarPdfBtn");
 const calendarAllToggle = document.getElementById("calendarAllToggle");
+const subjectsPanel = document.getElementById("subjectsPanel");
+const subjectsTabBtn = document.getElementById("subjectsTabBtn");
+const scheduleTabBtn = document.getElementById("scheduleTabBtn");
+const subjectFileInput = document.getElementById("subjectFileInput");
+const subjectsTable = document.getElementById("subjectsTable");
+const subjectsStatus = document.getElementById("subjectsStatus");
 
 let sourceRows = [];
 let supportRows = [];
@@ -52,6 +58,11 @@ let selectedColumn = null;
 const hiddenClassNames = new Set();
 let calendarMode = "class";
 let calendarAll = false;
+const teacherSubjects = new Map();
+
+function teacherKey(value) {
+  return normalizeCell(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+}
 
 function setStatus(message) {
   statusEl.textContent = message;
@@ -235,6 +246,27 @@ function renderSupportPreview() {
   supportTableEl.replaceChildren(thead, tbody);
 }
 
+function renderTeacherAssignments(cell, teacherNames) {
+  cell.replaceChildren();
+  teacherNames.forEach((teacherName, index) => {
+    const assignment = document.createElement("div");
+    assignment.className = "teacher-assignment";
+    const teacher = document.createElement("span");
+    teacher.className = "teacher-cell-name";
+    teacher.textContent = teacherName.trim();
+    assignment.appendChild(teacher);
+    const subject = teacherSubjects.get(teacherKey(teacherName));
+    if (subject) {
+      const subjectEl = document.createElement("span");
+      subjectEl.className = "teacher-cell-subject";
+      subjectEl.textContent = subject;
+      assignment.appendChild(subjectEl);
+    }
+    if (index < teacherNames.length - 1) assignment.classList.add("teacher-assignment-separated");
+    cell.appendChild(assignment);
+  });
+}
+
 function renderPreview() {
   selectedRow = null;
   selectedColumn = null;
@@ -270,7 +302,7 @@ function renderPreview() {
     tr.appendChild(classTd);
     row.periods.forEach((value, index) => {
       const td = document.createElement("td");
-      td.textContent = value;
+      if (value) renderTeacherAssignments(td, value.split(" / "));
       td.title = value || "Nessuna assegnazione";
       td.dataset.row = String(outputRows.indexOf(row) + 1);
       td.dataset.col = String(index + 1);
@@ -295,6 +327,7 @@ function renderPreview() {
   renderTeacherSelect();
   renderClassList();
   renderTeacherList();
+  renderSubjectsTable();
   renderCalendar();
 }
 
@@ -467,6 +500,36 @@ function highlightColumn(colNumber) {
   updateHighlights();
 }
 
+function renderSubjectsTable() {
+  const tbody = subjectsTable.querySelector("tbody");
+  tbody.replaceChildren();
+  getTeacherNames().forEach((name) => {
+    const tr = document.createElement("tr");
+    const nameCell = document.createElement("td"); nameCell.textContent = name;
+    const subjectCell = document.createElement("td");
+    const input = document.createElement("input");
+    input.className = "subject-input"; input.type = "text"; input.value = teacherSubjects.get(teacherKey(name)) || ""; input.placeholder = "Inserisci materia";
+    input.addEventListener("input", () => teacherSubjects.set(teacherKey(name), input.value));
+    subjectCell.appendChild(input); tr.append(nameCell, subjectCell); tbody.appendChild(tr);
+  });
+  const count = getTeacherNames().length;
+  subjectsStatus.textContent = count ? `${count} docenti. La materia è modificabile direttamente nella tabella.` : "Carica prima un orario oppure un file con i docenti.";
+}
+
+async function handleSubjectFile(file) {
+  const rows = (await parseFile(file)).map((row) => row.map(normalizeCell)).filter((row) => row.some(Boolean));
+  if (!rows.length) throw new Error("Il file materie non contiene righe leggibili.");
+  const header = rows[0].map(teacherKey);
+  const nameIndex = header.findIndex((cell) => cell.includes("nome") || cell.includes("docente") || cell === "insegnante");
+  const subjectIndex = header.findIndex((cell) => cell.includes("materia") || cell.includes("disciplina"));
+  const ni = nameIndex >= 0 ? nameIndex : 0, si = subjectIndex >= 0 ? subjectIndex : 1;
+  let count = 0;
+  rows.slice(nameIndex >= 0 && subjectIndex >= 0 ? 1 : 0).forEach((row) => { const name = normalizeCell(row[ni]); if (name) { teacherSubjects.set(teacherKey(name), normalizeCell(row[si])); count += 1; } });
+  renderSubjectsTable();
+  if (outputRows.length) renderPreview();
+  subjectsStatus.textContent = `${count} associazioni caricate. Puoi modificare le materie nella tabella.`;
+}
+
 const DAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì"];
 
 function calendarSubjects() {
@@ -529,7 +592,7 @@ function renderCalendar() {
       const index = day * 6 + period;
       const td = document.createElement("td");
       const value = cells[index] || [];
-      if (value.length) { td.className = "lesson-cell"; td.textContent = value.join(" · "); }
+      if (value.length) { td.className = "lesson-cell"; renderTeacherAssignments(td, value); }
       else if (calendarMode === "teacher" && isTeacherGap(cells, day, period)) { td.className = "calendar-gap"; td.textContent = ""; }
       else td.textContent = "";
       tr.appendChild(td);
@@ -545,7 +608,7 @@ function renderCalendar() {
 }
 
 function calendarExportRows() {
-  return [...calendarTable.rows].map((row) => [...row.cells].map((cell) => cell.textContent.trim().replace(/\s+/g, " ")));
+  return [...calendarTable.rows].map((row) => [...row.cells].map((cell) => (cell.innerText || cell.textContent).trim().replace(/[ \t]+/g, " ")));
 }
 
 function calendarFileName(extension) {
@@ -578,7 +641,23 @@ async function exportCalendarImage() {
 
 async function exportCalendarXlsx() {
   const workbook = new ExcelJS.Workbook(); const sheet = workbook.addWorksheet("Calendario");
-  calendarExportRows().forEach((row) => sheet.addRow(row));
+  [...calendarTable.rows].forEach((domRow) => {
+    const values = [...domRow.cells].map((cell) => {
+      if (calendarMode === "class" && cell.classList.contains("lesson-cell")) {
+        const richText = [];
+        [...cell.querySelectorAll(".teacher-assignment")].forEach((assignment, index) => {
+          if (index) richText.push({ text: "\n" });
+          const teacher = assignment.querySelector(".teacher-cell-name")?.textContent?.trim() || "";
+          const subject = assignment.querySelector(".teacher-cell-subject")?.textContent?.trim() || "";
+          richText.push({ text: teacher, font: { bold: true, size: 12, color: { argb: "FF1F2430" } } });
+          if (subject) richText.push({ text: `\n${subject}`, font: { size: 10, color: { argb: "FF78C98A" } } });
+        });
+        return { richText };
+      }
+      return (cell.innerText || cell.textContent || "").trim();
+    });
+    sheet.addRow(values);
+  });
   sheet.columns = [{ width: 18 }, ...DAYS.map(() => ({ width: 23 }))]; sheet.getRow(1).font = { bold: true };
   sheet.eachRow((row) => row.eachCell((cell) => { cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true }; if (cell.value === "Buco") cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9C5F4" } }; }));
   await downloadBlob(new Blob([await workbook.xlsx.writeBuffer()], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), calendarFileName("xlsx"));
@@ -838,4 +917,20 @@ calendarPdfBtn.addEventListener("click", () => exportCalendarPdf().catch((error)
 
 supportToggleEl.addEventListener("change", () => {
   supportTableEl.closest(".support-table-wrap").hidden = !supportToggleEl.checked;
+});
+
+subjectsTabBtn.addEventListener("click", () => {
+  subjectsPanel.hidden = false;
+  [calendarPanel, previewPanel, supportPanel, classListPanel, teacherListPanel].forEach((panel) => { if (panel) panel.hidden = true; });
+  subjectsTabBtn.classList.add("is-active"); scheduleTabBtn.classList.remove("is-active"); renderSubjectsTable();
+});
+scheduleTabBtn.addEventListener("click", () => {
+  subjectsPanel.hidden = true;
+  subjectsTabBtn.classList.remove("is-active"); scheduleTabBtn.classList.add("is-active");
+  [calendarPanel, previewPanel, supportPanel, classListPanel, teacherListPanel].forEach((panel) => { if (panel) panel.hidden = false; });
+  if (!outputRows.length) { calendarPanel.hidden = true; previewPanel.hidden = true; supportPanel.hidden = true; classListPanel.hidden = true; teacherListPanel.hidden = true; }
+});
+subjectFileInput.addEventListener("change", () => {
+  const file = subjectFileInput.files?.[0]; if (!file) return;
+  handleSubjectFile(file).catch((error) => { subjectsStatus.textContent = error.message || "Errore nel caricamento del file materie."; });
 });

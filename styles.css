@@ -85,6 +85,17 @@ h1 {
 
 .panel { padding: 22px; }
 
+.app-tabs { display: flex; gap: 8px; }
+.app-tabs button { border-radius: 12px; padding: 10px 16px; background: rgba(255,255,255,.68); }
+.app-tabs button.is-active { background: var(--accent); color: white; border-color: transparent; }
+.subjects-panel { scroll-margin-top: 16px; }
+.subject-file-picker { min-width: 260px; }
+.subjects-table-wrap table { min-width: 0; table-layout: auto; }
+.subjects-table-wrap th, .subjects-table-wrap td { width: auto; min-width: 0; max-width: none; padding: 10px 12px; white-space: normal; }
+.subjects-table-wrap th { text-align: left; position: static; }
+.subjects-table-wrap td:first-child { width: 45%; font-weight: 700; }
+.subject-input { width: 100%; border: 1px solid var(--line); border-radius: 9px; padding: 9px 10px; background: white; color: var(--text); font: inherit; }
+
 .calendar-panel { scroll-margin-top: 16px; }
 .calendar-header, .calendar-controls { display: flex; justify-content: space-between; align-items: end; gap: 16px; }
 .calendar-header { align-items: center; margin-bottom: 18px; }
@@ -110,6 +121,8 @@ h1 {
 #calendarTable td.period-label { background: rgba(125, 75, 179, .10); color: var(--text); font-weight: 700; }
 #calendarTable td { height: 58px; color: var(--muted); }
 #calendarTable td.lesson-cell { background: #fff; color: var(--text); font-weight: 700; }
+#calendarTable .teacher-cell-name { font-size: 14px; }
+#calendarTable .teacher-cell-subject { font-size: 12px; }
 #calendarTable td.calendar-gap { background: #fff; color: inherit; }
 .period-time { display: block; margin-top: 3px; font-size: 10px; font-weight: 400; color: var(--muted); }
 .calendar-legend { display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; color: var(--muted); font-size: 12px; margin: 12px 0 0; }
@@ -365,8 +378,12 @@ th:first-child, td.row-label {
 }
 th:first-child { top: 0; }
 td { height: 32px; cursor: default; }
-td:not(.row-label) { font-size: 10px; }
+td:not(.row-label) { font-size: 13px; }
 td.row-label { font-size: 11px; }
+.teacher-assignment { display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.08; }
+.teacher-assignment-separated { margin-top: 7px; padding-top: 6px; border-top: 1px solid rgba(31, 36, 48, .16); }
+.teacher-cell-name { font-size: 13px; font-weight: 800; }
+.teacher-cell-subject { font-size: 12px; font-weight: 600; color: var(--accent); white-space: normal; }
 td.is-highlighted, th.is-highlighted, td.row-label.is-highlighted {
   outline: 2px solid #7d4bb3;
   outline-offset: -2px;
