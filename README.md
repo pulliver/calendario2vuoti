@@ -10,6 +10,7 @@ Piccolo progetto web statico per caricare un file `.xlsx` o `.csv` con una grigl
 - Celle con due o più insegnanti evidenziate in rosso
 - Export in `.xlsx` e `.csv`
 - Il martedi viene sempre normalizzato nelle colonne `Mar1..Mar6`, anche quando il file sorgente usa date come intestazione
+- Se il file contiene più tabelle, viene elaborata solo la prima: le tabelle successive sono riconosciute da una riga vuota seguita dalla ripetizione dell'intestazione.
 
 ## Avvio
 

@@ -165,6 +165,19 @@ button:disabled {
   font-size: 12px;
 }
 
+.support-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.support-toggle input { accent-color: var(--accent); }
+.support-panel { border-color: rgba(31, 111, 120, 0.28); }
+
 .preview-info {
   display: grid;
   justify-items: end;
@@ -206,6 +219,24 @@ button:disabled {
   break-inside: avoid;
   padding: 4px 8px;
   color: var(--muted);
+}
+
+.class-list-help {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+
+.class-list-item {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 9px;
+}
+
+.class-list-item input {
+  accent-color: var(--accent);
+  cursor: pointer;
 }
 
 .teacher-list-panel { padding-bottom: 18px; }

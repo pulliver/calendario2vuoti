@@ -20,13 +20,20 @@ const classListSummaryEl = document.getElementById("classListSummary");
 const teacherListPanel = document.getElementById("teacherListPanel");
 const teacherListEl = document.getElementById("teacherList");
 const teacherListSummaryEl = document.getElementById("teacherListSummary");
+const supportPanel = document.getElementById("supportPanel");
+const supportToggleEl = document.getElementById("supportToggle");
+const supportTableEl = document.getElementById("supportTable");
+const supportSummaryEl = document.getElementById("supportSummary");
 
 let sourceRows = [];
+let supportRows = [];
+let supportOutputRows = [];
 let outputRows = [];
 let outputWorkbook = null;
 let sourceName = "orario";
 let selectedRow = null;
 let selectedColumn = null;
+const hiddenClassNames = new Set();
 
 function setStatus(message) {
   statusEl.textContent = message;
@@ -51,6 +58,10 @@ function normalizeCell(value) {
 
 function isPeriodHeaderCell(value) {
   return /^(lun|mar|mer|gio|ven)\s*[1-6]$/i.test(normalizeCell(value));
+}
+
+function isBlankRow(row) {
+  return row.every((value) => normalizeCell(value) === "");
 }
 
 function parseCsv(text) {
@@ -92,7 +103,8 @@ function parseCsv(text) {
   }
   row.push(cell);
   rows.push(row);
-  return rows.filter((r) => r.some((v) => String(v).trim() !== ""));
+  // Mantieni le righe vuote: delimitano le eventuali tabelle successive.
+  return rows;
 }
 
 function normalizeGrid(rawRows) {
@@ -129,8 +141,29 @@ function normalizeGrid(rawRows) {
     .map(([className, cells]) => ({ className, cells }));
 }
 
+function firstSourceTable(rawRows) {
+  const normalizedRows = rawRows.map((row) => row.map(normalizeCell));
+  const headerIndexes = normalizedRows
+    .map((row, index) => ({ index, count: row.filter(isPeriodHeaderCell).length }))
+    .filter((entry) => entry.count >= 3)
+    .map((entry) => entry.index);
+
+  if (!headerIndexes.length) {
+    // Compatibilita con file privi di una riga di intestazione riconoscibile.
+    return rawRows;
+  }
+
+  const firstHeaderIndex = headerIndexes[0];
+  const nextTableHeader = headerIndexes.find((headerIndex) =>
+    normalizedRows.slice(firstHeaderIndex + 1, headerIndex).some(isBlankRow),
+  );
+
+  // Una riga vuota seguita dalla stessa intestazione delimita una nuova tabella.
+  return rawRows.slice(firstHeaderIndex, nextTableHeader ?? rawRows.length);
+}
+
 function buildOutput() {
-  outputRows = sourceRows.map((row) => {
+  outputRows = sourceRows.filter((row) => !hiddenClassNames.has(row.className)).map((row) => {
     const periods = row.cells.map((cell) => {
       if (cell.length === 0) return "";
       return cell.join(" / ");
@@ -140,6 +173,48 @@ function buildOutput() {
       periods,
     };
   });
+  supportOutputRows = supportRows.length ? normalizeGrid(supportRows).map((row) => ({
+    className: row.className,
+    periods: row.cells.map((cell) => cell.join(" / ")),
+  })) : [];
+}
+
+function renderSupportPreview() {
+  supportPanel.hidden = !supportRows.length;
+  supportToggleEl.checked = false;
+  supportToggleEl.disabled = !supportRows.length;
+  supportSummaryEl.textContent = supportRows.length
+    ? `${supportOutputRows.length} classi individuate; esclusa dall'output principale`
+    : "";
+  const thead = document.createElement("thead");
+  const tbody = document.createElement("tbody");
+  const headerRow = document.createElement("tr");
+  ["Classe", ...PERIODS].forEach((label, index) => {
+    const th = document.createElement("th");
+    th.textContent = label;
+    if (index > 0 && index % 6 === 0 && index < PERIODS.length) th.classList.add("group-break");
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+
+  supportOutputRows.forEach((row) => {
+    const tr = document.createElement("tr");
+    const classTd = document.createElement("td");
+    classTd.textContent = row.className;
+    classTd.className = "row-label";
+    tr.appendChild(classTd);
+    row.periods.forEach((value, index) => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      td.title = value || "Nessuna assegnazione";
+      if (!value) td.classList.add("violet");
+      else if (value.includes(" / ")) td.classList.add("red");
+      if ((index + 1) % 6 === 0 && index < PERIODS.length - 1) td.classList.add("group-break");
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  supportTableEl.replaceChildren(thead, tbody);
 }
 
 function renderPreview() {
@@ -198,6 +273,7 @@ function renderPreview() {
 
   tableEl.replaceChildren(thead, tbody);
   summaryEl.textContent = `${outputRows.length} classi, ${PERIODS.length} periodi per classe`;
+  renderSupportPreview();
   renderTeacherSelect();
   renderClassList();
   renderTeacherList();
@@ -224,10 +300,33 @@ function renderClassList() {
   classListEl.replaceChildren();
   classNames.forEach((className) => {
     const item = document.createElement("li");
-    item.textContent = className;
+    const label = document.createElement("label");
+    label.className = "class-list-item";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = !hiddenClassNames.has(className);
+    checkbox.setAttribute("aria-label", `Visualizza classe ${className}`);
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) hiddenClassNames.delete(className);
+      else hiddenClassNames.add(className);
+      buildOutput();
+      renderPreview();
+      outputWorkbook = null;
+      buildWorkbook().then((workbook) => {
+        outputWorkbook = workbook;
+      }).catch((error) => {
+        console.error(error);
+        setStatus(error.message || "Errore durante l’aggiornamento dell’export.");
+      });
+    });
+    const text = document.createElement("span");
+    text.textContent = className;
+    label.append(checkbox, text);
+    item.appendChild(label);
     classListEl.appendChild(item);
   });
-  classListSummaryEl.textContent = `${classNames.length} classi individuate`;
+  const visibleCount = classNames.filter((className) => !hiddenClassNames.has(className)).length;
+  classListSummaryEl.textContent = `${visibleCount}/${classNames.length} classi visualizzate`;
   classListPanel.hidden = classNames.length === 0;
 }
 
@@ -452,13 +551,14 @@ async function handleGenerate() {
   setStatus("Sto leggendo il file...");
   const rows = await parseFile(file);
   if (!rows.length) throw new Error("Il file non contiene righe leggibili.");
-  sourceRows = normalizeGrid(rows);
+  sourceRows = normalizeGrid(firstSourceTable(rows));
+  supportRows = [];
   buildOutput();
   renderPreview();
   outputWorkbook = await buildWorkbook();
   downloadXlsxBtn.disabled = false;
   downloadCsvBtn.disabled = false;
-  setStatus("Anteprima aggiornata.");
+  setStatus("Anteprima aggiornata. Per l'output è stata usata solo la prima tabella.");
 }
 
 async function handleDownloadXlsx() {
@@ -488,6 +588,13 @@ fileInput.addEventListener("change", () => {
   downloadCsvBtn.disabled = true;
   outputWorkbook = null;
   tableEl.replaceChildren();
+  supportTableEl.replaceChildren();
+  supportPanel.hidden = true;
+  supportToggleEl.checked = false;
+  supportToggleEl.disabled = true;
+  supportRows = [];
+  supportOutputRows = [];
+  hiddenClassNames.clear();
   classListEl.replaceChildren();
   classListPanel.hidden = true;
   teacherListEl.replaceChildren();
@@ -523,4 +630,8 @@ teacherSelectEl.addEventListener("change", () => {
   const teacherName = teacherSelectEl.value;
   highlightTeachers(teacherName ? [teacherName] : []);
   renderTeacherDetails(teacherName ? [teacherName] : []);
+});
+
+supportToggleEl.addEventListener("change", () => {
+  supportTableEl.closest(".support-table-wrap").hidden = !supportToggleEl.checked;
 });

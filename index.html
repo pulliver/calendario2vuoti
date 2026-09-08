@@ -10,7 +10,7 @@
     <main class="shell">
       <section class="hero">
         <div class="eyebrow">Importa, normalizza, esporta</div>
-        <h1>Sovrapposizioni</h1>
+        <h1>Sovrapposizioni v3</h1>
         <p>
           orario docente periodo a classe periodo
         </p>
@@ -49,11 +49,28 @@
         </div>
       </section>
 
+      <section id="supportPanel" class="panel preview support-panel" hidden>
+        <div class="preview-header">
+          <div class="preview-title">
+            <h2>Orario docenti di sostegno</h2>
+            <label class="support-toggle">
+              <input id="supportToggle" type="checkbox" disabled />
+              <span>Visualizza seconda tabella</span>
+            </label>
+          </div>
+          <span id="supportSummary" class="summary"></span>
+        </div>
+        <div class="table-wrap support-table-wrap" hidden>
+          <table id="supportTable"></table>
+        </div>
+      </section>
+
       <section id="classListPanel" class="panel class-list-panel" hidden>
         <div class="preview-header">
           <h2>Classi previste nel file</h2>
           <span id="classListSummary" class="summary"></span>
         </div>
+        <p class="class-list-help">Deseleziona una o più classi per nasconderle dall’anteprima e dall’export.</p>
         <ol id="classList" class="class-list"></ol>
       </section>
 
