@@ -517,7 +517,7 @@ function renderCalendar() {
     const tr = document.createElement("tr");
     const label = document.createElement("td");
     label.className = "period-label";
-    label.innerHTML = `${period + 1}° periodo<span class="period-time">${8 + Math.floor(period / 2)}:${period % 2 ? "55" : "00"}</span>`;
+    label.textContent = `${period + 1}° periodo`;
     tr.appendChild(label);
     DAYS.forEach((_, day) => {
       const index = day * 6 + period;
