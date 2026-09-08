@@ -415,3 +415,6 @@ td.group-break, th.group-break { border-right: 3px solid rgba(31, 36, 48, 0.45);
   .hero-title-row { align-items: flex-start; flex-direction: column; }
   .hero .file-actions { align-items: flex-start; flex-wrap: wrap; }
 }
+[hidden] {
+  display: none !important;
+}

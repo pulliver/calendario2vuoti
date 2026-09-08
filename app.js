@@ -44,6 +44,7 @@ const subjectsPanel = document.getElementById("subjectsPanel");
 const subjectsTabBtn = document.getElementById("subjectsTabBtn");
 const scheduleTabBtn = document.getElementById("scheduleTabBtn");
 const subjectFileInput = document.getElementById("subjectFileInput");
+const appTabs = document.getElementById("appTabs");
 const subjectsTable = document.getElementById("subjectsTable");
 const subjectsStatus = document.getElementById("subjectsStatus");
 
@@ -821,6 +822,7 @@ async function handleGenerate() {
   renderPreview();
   outputWorkbook = await buildWorkbook();
   previewPanel.hidden = false;
+  appTabs.hidden = false;
   downloadXlsxBtn.disabled = false;
   downloadCsvBtn.disabled = false;
   setStatus("Anteprima aggiornata. Per l'output è stata usata solo la prima tabella.");
@@ -868,6 +870,7 @@ fileInput.addEventListener("change", () => {
   classListPanel.hidden = true;
   teacherListEl.replaceChildren();
   teacherListPanel.hidden = true;
+  appTabs.hidden = true;
   teacherDetailsEl.replaceChildren();
   teacherDetailsEl.hidden = true;
   teacherSelectEl.replaceChildren();
@@ -881,6 +884,7 @@ fileInput.addEventListener("change", () => {
   toggleSourceBtn.setAttribute("aria-expanded", "true");
   handleGenerate().catch((error) => {
     console.error(error);
+    appTabs.hidden = true;
     setStatus(error.message || "Errore durante la generazione.");
   });
 });
