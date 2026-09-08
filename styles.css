@@ -75,6 +75,8 @@ h1 {
 .calendar-tabs button { border: 0; border-radius: 9px; background: transparent; padding: 8px 12px; }
 .calendar-tabs button.is-active { background: white; color: var(--accent); box-shadow: 0 1px 3px rgba(31,36,48,.14); }
 .calendar-subject-field { width: min(100%, 330px); }
+.calendar-all-toggle { display: inline-flex; align-items: center; gap: 8px; margin-right: auto; padding-bottom: 11px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.calendar-all-toggle input { width: 36px; height: 20px; accent-color: var(--accent); cursor: pointer; }
 .calendar-subject-field select { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: white; color: var(--text); font: inherit; }
 .calendar-exports { display: flex; flex-wrap: wrap; gap: 8px; }
 .calendar-exports button { padding: 9px 12px; font-size: 13px; }

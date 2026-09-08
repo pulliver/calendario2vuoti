@@ -35,6 +35,7 @@ const calendarLegend = document.getElementById("calendarLegend");
 const calendarImageBtn = document.getElementById("calendarImageBtn");
 const calendarXlsxBtn = document.getElementById("calendarXlsxBtn");
 const calendarPdfBtn = document.getElementById("calendarPdfBtn");
+const calendarAllToggle = document.getElementById("calendarAllToggle");
 
 let sourceRows = [];
 let supportRows = [];
@@ -46,6 +47,7 @@ let selectedRow = null;
 let selectedColumn = null;
 const hiddenClassNames = new Set();
 let calendarMode = "class";
+let calendarAll = false;
 
 function setStatus(message) {
   statusEl.textContent = message;
@@ -532,6 +534,10 @@ function renderCalendar() {
   }
   calendarTable.replaceChildren(thead, tbody);
   calendarPanel.hidden = !subjects.length;
+  calendarSubjectSelect.disabled = calendarAll;
+  calendarImageBtn.disabled = calendarAll;
+  calendarXlsxBtn.disabled = calendarAll;
+  calendarPdfBtn.textContent = calendarAll ? "Esporta PDF tutti" : "Esporta PDF";
 }
 
 function calendarExportRows() {
@@ -575,12 +581,32 @@ async function exportCalendarXlsx() {
 }
 
 async function exportCalendarPdf() {
+  if (calendarAll) return exportAllCalendarsPdf();
   const canvas = await calendarCanvas();
   if (!window.jspdf) throw new Error("La libreria PDF non è disponibile.");
   const pdf = new window.jspdf.jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
   const pageWidth = pdf.internal.pageSize.getWidth(), pageHeight = pdf.internal.pageSize.getHeight();
   const ratio = Math.min((pageWidth - 36) / canvas.width, (pageHeight - 36) / canvas.height);
   pdf.addImage(canvas.toDataURL("image/png"), "PNG", 18, 18, canvas.width * ratio, canvas.height * ratio); pdf.save(calendarFileName("pdf"));
+}
+
+async function exportAllCalendarsPdf() {
+  const subjects = calendarSubjects();
+  if (!subjects.length || !window.jspdf) throw new Error("Nessun calendario disponibile per l'esportazione PDF.");
+  const originalSubject = calendarSubjectSelect.value;
+  const pdf = new window.jspdf.jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+  const pageWidth = pdf.internal.pageSize.getWidth(), pageHeight = pdf.internal.pageSize.getHeight();
+  for (let index = 0; index < subjects.length; index += 1) {
+    calendarSubjectSelect.value = subjects[index];
+    renderCalendar();
+    const canvas = await calendarCanvas();
+    if (index > 0) pdf.addPage();
+    const ratio = Math.min((pageWidth - 36) / canvas.width, (pageHeight - 36) / canvas.height);
+    pdf.addImage(canvas.toDataURL("image/png"), "PNG", 18, 18, canvas.width * ratio, canvas.height * ratio);
+  }
+  calendarSubjectSelect.value = originalSubject;
+  renderCalendar();
+  pdf.save(`${sourceName}-${calendarMode === "class" ? "classi" : "docenti"}-tutti.pdf`);
 }
 
 async function parseFile(file) {
@@ -771,6 +797,7 @@ teacherSelectEl.addEventListener("change", () => {
 classCalendarTab.addEventListener("click", () => { calendarMode = "class"; renderCalendar(); });
 teacherCalendarTab.addEventListener("click", () => { calendarMode = "teacher"; renderCalendar(); });
 calendarSubjectSelect.addEventListener("change", renderCalendar);
+calendarAllToggle.addEventListener("change", () => { calendarAll = calendarAllToggle.checked; renderCalendar(); });
 calendarImageBtn.addEventListener("click", () => exportCalendarImage().catch((error) => setStatus(error.message || "Errore durante l'esportazione immagine.")));
 calendarXlsxBtn.addEventListener("click", () => exportCalendarXlsx().catch((error) => setStatus(error.message || "Errore durante l'esportazione Excel.")));
 calendarPdfBtn.addEventListener("click", () => exportCalendarPdf().catch((error) => setStatus(error.message || "Errore durante l'esportazione PDF.")));
