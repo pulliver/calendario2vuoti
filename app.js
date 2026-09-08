@@ -24,6 +24,17 @@ const supportPanel = document.getElementById("supportPanel");
 const supportToggleEl = document.getElementById("supportToggle");
 const supportTableEl = document.getElementById("supportTable");
 const supportSummaryEl = document.getElementById("supportSummary");
+const calendarPanel = document.getElementById("calendarPanel");
+const classCalendarTab = document.getElementById("classCalendarTab");
+const teacherCalendarTab = document.getElementById("teacherCalendarTab");
+const calendarSubjectLabel = document.getElementById("calendarSubjectLabel");
+const calendarSubjectSelect = document.getElementById("calendarSubjectSelect");
+const calendarDescription = document.getElementById("calendarDescription");
+const calendarTable = document.getElementById("calendarTable");
+const calendarLegend = document.getElementById("calendarLegend");
+const calendarImageBtn = document.getElementById("calendarImageBtn");
+const calendarXlsxBtn = document.getElementById("calendarXlsxBtn");
+const calendarPdfBtn = document.getElementById("calendarPdfBtn");
 
 let sourceRows = [];
 let supportRows = [];
@@ -34,6 +45,7 @@ let sourceName = "orario";
 let selectedRow = null;
 let selectedColumn = null;
 const hiddenClassNames = new Set();
+let calendarMode = "class";
 
 function setStatus(message) {
   statusEl.textContent = message;
@@ -277,6 +289,7 @@ function renderPreview() {
   renderTeacherSelect();
   renderClassList();
   renderTeacherList();
+  renderCalendar();
 }
 
 function renderTeacherSelect() {
@@ -448,6 +461,128 @@ function highlightColumn(colNumber) {
   updateHighlights();
 }
 
+const DAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì"];
+
+function calendarSubjects() {
+  return calendarMode === "class"
+    ? outputRows.map((row) => row.className)
+    : getTeacherNames();
+}
+
+function teacherCalendarCells(teacherName) {
+  return PERIODS.map((_, periodIndex) => outputRows
+    .filter((row) => row.periods[periodIndex].split(" / ").map((name) => name.trim()).includes(teacherName))
+    .map((row) => row.className));
+}
+
+function isTeacherGap(cells, dayIndex, periodInDay) {
+  const dayStart = dayIndex * 6;
+  const dayCells = cells.slice(dayStart, dayStart + 6);
+  const occupied = dayCells.map((value, index) => value.length ? index : -1).filter((index) => index >= 0);
+  return !cells[dayStart + periodInDay].length && occupied.length > 1
+    && periodInDay > occupied[0] && periodInDay < occupied[occupied.length - 1];
+}
+
+function renderCalendar() {
+  const subjects = calendarSubjects();
+  const previous = calendarSubjectSelect.value;
+  calendarSubjectSelect.replaceChildren();
+  subjects.forEach((subject) => {
+    const option = document.createElement("option");
+    option.value = subject;
+    option.textContent = subject;
+    calendarSubjectSelect.appendChild(option);
+  });
+  if (subjects.includes(previous)) calendarSubjectSelect.value = previous;
+  const subject = calendarSubjectSelect.value;
+  calendarSubjectLabel.textContent = calendarMode === "class" ? "Classe" : "Docente";
+  calendarDescription.textContent = subject
+    ? calendarMode === "class" ? `Calendario della classe ${subject}: docenti nelle celle.` : `Calendario di ${subject}: classi nelle celle; i buchi sono viola.`
+    : "Nessun dato disponibile.";
+  calendarLegend.hidden = calendarMode !== "teacher";
+  classCalendarTab.classList.toggle("is-active", calendarMode === "class");
+  teacherCalendarTab.classList.toggle("is-active", calendarMode === "teacher");
+  classCalendarTab.setAttribute("aria-selected", String(calendarMode === "class"));
+  teacherCalendarTab.setAttribute("aria-selected", String(calendarMode === "teacher"));
+
+  const cells = calendarMode === "class"
+    ? (outputRows.find((row) => row.className === subject)?.periods.map((value) => value ? value.split(" / ") : []) || [])
+    : teacherCalendarCells(subject);
+  const thead = document.createElement("thead");
+  const header = document.createElement("tr");
+  ["Periodo", ...DAYS].forEach((name) => { const th = document.createElement("th"); th.textContent = name; header.appendChild(th); });
+  thead.appendChild(header);
+  const tbody = document.createElement("tbody");
+  for (let period = 0; period < 6; period += 1) {
+    const tr = document.createElement("tr");
+    const label = document.createElement("td");
+    label.className = "period-label";
+    label.innerHTML = `${period + 1}° periodo<span class="period-time">${8 + Math.floor(period / 2)}:${period % 2 ? "55" : "00"}</span>`;
+    tr.appendChild(label);
+    DAYS.forEach((_, day) => {
+      const index = day * 6 + period;
+      const td = document.createElement("td");
+      const value = cells[index] || [];
+      if (value.length) { td.className = "lesson-cell"; td.textContent = value.join(" · "); }
+      else if (calendarMode === "teacher" && isTeacherGap(cells, day, period)) { td.className = "calendar-gap"; td.textContent = "Buco"; }
+      else td.textContent = "—";
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  }
+  calendarTable.replaceChildren(thead, tbody);
+  calendarPanel.hidden = !subjects.length;
+}
+
+function calendarExportRows() {
+  return [...calendarTable.rows].map((row) => [...row.cells].map((cell) => cell.textContent.trim().replace(/\s+/g, " ")));
+}
+
+function calendarFileName(extension) {
+  const subject = calendarSubjectSelect.value.replace(/[^\p{L}\p{N}]+/gu, "-").replace(/(^-|-$)/g, "");
+  return `${sourceName}-${calendarMode === "class" ? "classe" : "docente"}-${subject}.${extension}`;
+}
+
+async function calendarCanvas() {
+  const rows = calendarExportRows();
+  const width = 1100, height = 90 + rows.length * 82, colWidth = (width - 150) / 5;
+  const esc = (text) => String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  let body = `<rect width="${width}" height="${height}" fill="#ffffff"/><text x="40" y="42" font-family="Arial" font-size="24" font-weight="700">${esc(calendarDescription.textContent)}</text>`;
+  rows.forEach((row, r) => row.forEach((value, c) => {
+    const x = c === 0 ? 20 : 150 + (c - 1) * colWidth, y = 60 + r * 82, w = c === 0 ? 130 : colWidth;
+    const isGap = value === "Buco";
+    const fill = r === 0 ? "#f3efe8" : isGap ? "#d9c5f4" : value === "—" ? "#ffffff" : "#e2f1f2";
+    body += `<rect x="${x}" y="${y}" width="${w}" height="82" fill="${fill}" stroke="#c8cbd2"/><text x="${x + w / 2}" y="${y + 44}" text-anchor="middle" font-family="Arial" font-size="${r === 0 ? 15 : 14}" font-weight="${r === 0 || value !== "—" ? 700 : 400}">${esc(value)}</text>`;
+  }));
+  const image = new Image();
+  await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${body}</svg>`)}`; });
+  const canvas = document.createElement("canvas"); canvas.width = width; canvas.height = height; canvas.getContext("2d").drawImage(image, 0, 0);
+  return canvas;
+}
+
+async function exportCalendarImage() {
+  const canvas = await calendarCanvas();
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+  await downloadBlob(blob, calendarFileName("png"));
+}
+
+async function exportCalendarXlsx() {
+  const workbook = new ExcelJS.Workbook(); const sheet = workbook.addWorksheet("Calendario");
+  calendarExportRows().forEach((row) => sheet.addRow(row));
+  sheet.columns = [{ width: 18 }, ...DAYS.map(() => ({ width: 23 }))]; sheet.getRow(1).font = { bold: true };
+  sheet.eachRow((row) => row.eachCell((cell) => { cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true }; if (cell.value === "Buco") cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9C5F4" } }; }));
+  await downloadBlob(new Blob([await workbook.xlsx.writeBuffer()], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), calendarFileName("xlsx"));
+}
+
+async function exportCalendarPdf() {
+  const canvas = await calendarCanvas();
+  if (!window.jspdf) throw new Error("La libreria PDF non è disponibile.");
+  const pdf = new window.jspdf.jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+  const pageWidth = pdf.internal.pageSize.getWidth(), pageHeight = pdf.internal.pageSize.getHeight();
+  const ratio = Math.min((pageWidth - 36) / canvas.width, (pageHeight - 36) / canvas.height);
+  pdf.addImage(canvas.toDataURL("image/png"), "PNG", 18, 18, canvas.width * ratio, canvas.height * ratio); pdf.save(calendarFileName("pdf"));
+}
+
 async function parseFile(file) {
   sourceName = file.name.replace(/\.[^.]+$/, "");
   const ext = file.name.split(".").pop().toLowerCase();
@@ -594,6 +729,7 @@ fileInput.addEventListener("change", () => {
   supportToggleEl.disabled = true;
   supportRows = [];
   supportOutputRows = [];
+  calendarPanel.hidden = true;
   hiddenClassNames.clear();
   classListEl.replaceChildren();
   classListPanel.hidden = true;
@@ -631,6 +767,13 @@ teacherSelectEl.addEventListener("change", () => {
   highlightTeachers(teacherName ? [teacherName] : []);
   renderTeacherDetails(teacherName ? [teacherName] : []);
 });
+
+classCalendarTab.addEventListener("click", () => { calendarMode = "class"; renderCalendar(); });
+teacherCalendarTab.addEventListener("click", () => { calendarMode = "teacher"; renderCalendar(); });
+calendarSubjectSelect.addEventListener("change", renderCalendar);
+calendarImageBtn.addEventListener("click", () => exportCalendarImage().catch((error) => setStatus(error.message || "Errore durante l'esportazione immagine.")));
+calendarXlsxBtn.addEventListener("click", () => exportCalendarXlsx().catch((error) => setStatus(error.message || "Errore durante l'esportazione Excel.")));
+calendarPdfBtn.addEventListener("click", () => exportCalendarPdf().catch((error) => setStatus(error.message || "Errore durante l'esportazione PDF.")));
 
 supportToggleEl.addEventListener("change", () => {
   supportTableEl.closest(".support-table-wrap").hidden = !supportToggleEl.checked;

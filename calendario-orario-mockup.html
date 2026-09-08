@@ -1,0 +1,66 @@
+<style>
+  #orario-proposta { font-family: system-ui, sans-serif; color: light-dark(#172033,#e8edf8); }
+  #orario-proposta .app { background: light-dark(#f7f8fc,#151925); border: 1px solid light-dark(#d9deea,#353c50); border-radius: 16px; overflow: hidden; }
+  #orario-proposta .top { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 20px; background:light-dark(#fff,#202638); border-bottom:1px solid light-dark(#d9deea,#353c50); }
+  #orario-proposta .brand { font-weight:650; letter-spacing:-.02em; white-space:nowrap; }
+  #orario-proposta .top-actions, #orario-proposta .filters, #orario-proposta .exports { display:flex; align-items:end; gap:10px; flex-wrap:wrap; }
+  #orario-proposta .main { padding:20px; }
+  #orario-proposta .mode { display:flex; gap:6px; padding:4px; border-radius:10px; background:light-dark(#e9edf5,#2b3244); width:max-content; }
+  #orario-proposta .mode button { appearance:none; border:0; background:transparent; color:inherit; padding:8px 12px; border-radius:7px; font:inherit; cursor:pointer; }
+  #orario-proposta .mode button.active { background:light-dark(#fff,#414b64); font-weight:600; box-shadow:0 1px 2px #0002; }
+  #orario-proposta label { display:grid; gap:5px; font-size:12px; font-weight:600; }
+  #orario-proposta select, #orario-proposta button.export { font:inherit; color:inherit; border:1px solid light-dark(#cbd2e1,#4a536c); background:light-dark(#fff,#202638); border-radius:8px; padding:9px 10px; }
+  #orario-proposta select { min-width:230px; }
+  #orario-proposta .toolbar { display:flex; align-items:end; justify-content:space-between; gap:16px; margin:20px 0 14px; }
+  #orario-proposta .context { font-size:14px; color:light-dark(#586176,#b9c1d2); }
+  #orario-proposta .context strong { color:inherit; }
+  #orario-proposta .calendar-wrap { overflow-x:auto; }
+  #orario-proposta table { width:100%; border-collapse:separate; border-spacing:0; min-width:680px; background:light-dark(#fff,#202638); border:1px solid light-dark(#d9deea,#353c50); border-radius:12px; overflow:hidden; }
+  #orario-proposta th { text-align:center; font-size:12px; font-weight:600; padding:12px 8px; background:light-dark(#f2f4f8,#282f42); border-bottom:1px solid light-dark(#d9deea,#353c50); }
+  #orario-proposta th:first-child { text-align:left; width:88px; padding-left:14px; }
+  #orario-proposta td { height:61px; padding:5px; border-bottom:1px solid light-dark(#e4e7ee,#353c50); border-right:1px solid light-dark(#e4e7ee,#353c50); vertical-align:middle; }
+  #orario-proposta tr:last-child td { border-bottom:0; } #orario-proposta td:last-child { border-right:0; }
+  #orario-proposta .period { padding-left:14px; font-weight:600; font-size:13px; } #orario-proposta .time { display:block; color:light-dark(#737d92,#aab4c9); font-size:11px; font-weight:400; margin-top:3px; }
+  #orario-proposta .lesson { display:block; padding:8px; border-radius:7px; background:light-dark(#e9f0ff,#273b65); color:light-dark(#173976,#e0ebff); font-size:13px; font-weight:600; text-align:center; }
+  #orario-proposta .gap { background:light-dark(#f0e9ff,#432d68); color:light-dark(#5c2b91,#eadcff); border-radius:7px; text-align:center; font-size:12px; font-weight:600; }
+  #orario-proposta .empty { color:light-dark(#9aa4b6,#778199); text-align:center; font-size:12px; }
+  #orario-proposta .legend { display:flex; gap:16px; margin-top:12px; align-items:center; font-size:12px; color:light-dark(#586176,#b9c1d2); } #orario-proposta .dot { width:12px;height:12px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:5px;background:light-dark(#e9f0ff,#273b65); } #orario-proposta .dot.g {background:light-dark(#f0e9ff,#432d68)}
+  @media(max-width:620px){ #orario-proposta .top,.toolbar { align-items:flex-start; flex-direction:column; } #orario-proposta .main{padding:14px} #orario-proposta .top-actions{width:100%} #orario-proposta select{min-width:min(100%,260px)} }
+</style>
+<section id="orario-proposta" aria-label="Proposta calendario scolastico">
+  <div class="app">
+    <header class="top"><div class="brand">Orario scolastico</div><div class="top-actions"><div class="mode" role="tablist" aria-label="Tipo di calendario"><button class="active" type="button" role="tab" aria-selected="true">Per classe</button><button type="button" role="tab" aria-selected="false">Per docente</button></div></div></header>
+    <main class="main">
+      <div class="toolbar"><div class="filters"><label>Classe<select aria-label="Seleziona classe"><option>2ª B — Liceo scientifico</option><option>2ª A — Liceo scientifico</option></select></label><label>Settimana<select aria-label="Seleziona settimana"><option>Orario settimanale</option></select></label></div><div class="exports" aria-label="Esporta calendario"><button class="export" type="button">Esporta immagine</button><button class="export" type="button">Excel</button><button class="export" type="button">PDF</button></div></div>
+      <p class="context">Calendario della <strong>2ª B</strong> · docenti nelle celle</p>
+      <div class="calendar-wrap"><table aria-label="Calendario classe 2 B"><thead><tr><th>Periodo</th><th>Lunedì</th><th>Martedì</th><th>Mercoledì</th><th>Giovedì</th><th>Venerdì</th></tr></thead><tbody><tr><td class="period">1°<span class="time">08:00–08:55</span></td><td><span class="lesson">Rossi</span></td><td><span class="lesson">Bianchi</span></td><td><span class="lesson">Rossi</span></td><td><span class="lesson">Neri</span></td><td><span class="lesson">Verdi</span></td></tr><tr><td class="period">2°<span class="time">08:55–09:50</span></td><td><span class="lesson">Rossi</span></td><td><span class="lesson">Gallo</span></td><td><span class="lesson">Bianchi</span></td><td><span class="lesson">Neri</span></td><td><span class="lesson">Verdi</span></td></tr><tr><td class="period">3°<span class="time">10:00–10:55</span></td><td><span class="lesson">Neri</span></td><td><span class="lesson">Rossi</span></td><td><span class="lesson">Gallo</span></td><td><span class="lesson">Rossi</span></td><td><span class="lesson">Bianchi</span></td></tr><tr><td class="period">4°<span class="time">10:55–11:50</span></td><td><span class="lesson">Gallo</span></td><td><span class="lesson">Neri</span></td><td><span class="lesson">Verdi</span></td><td><span class="lesson">Bianchi</span></td><td><span class="lesson">Rossi</span></td></tr><tr><td class="period">5°<span class="time">12:00–12:55</span></td><td><span class="empty">—</span></td><td><span class="lesson">Verdi</span></td><td><span class="lesson">Neri</span></td><td><span class="lesson">Gallo</span></td><td><span class="empty">—</span></td></tr></tbody></table></div>
+      <div class="legend"><span><i class="dot"></i>Lezione</span><span><i class="dot g"></i>Buco (solo vista docente)</span></div>
+    </main>
+  </div>
+</section>
+<script>
+(() => {
+  const root = document.getElementById('orario-proposta');
+  const buttons = root.querySelectorAll('[role="tab"]');
+  const select = root.querySelector('select');
+  const context = root.querySelector('.context');
+  const lessonCells = root.querySelectorAll('tbody td:not(:first-child)');
+  const names = ['Rossi','Bianchi','Rossi','Neri','Verdi','Rossi','Gallo','Bianchi','Neri','Verdi','Neri','Rossi','Gallo','Rossi','Bianchi','Gallo','Neri','Verdi','Bianchi','Rossi','','Verdi','Neri','Gallo',''];
+  const classes = ['2ª B','1ª A','2ª B','3ª C','1ª A','2ª B','','3ª C','2ª B','1ª A','3ª C','2ª B','1ª A','2ª B','3ª C','1ª A','2ª B','3ª C','1ª A','2ª B','3ª C','1ª A','2ª B','3ª C','1ª A'];
+  function render(type) {
+    const teacher = type === 'teacher';
+    root.querySelector('label').firstChild.textContent = teacher ? 'Docente' : 'Classe';
+    select.innerHTML = teacher ? '<option>Prof. Marco Rossi</option><option>Prof.ssa Anna Bianchi</option>' : '<option>2ª B — Liceo scientifico</option><option>2ª A — Liceo scientifico</option>';
+    context.innerHTML = teacher ? 'Calendario del <strong>Prof. Marco Rossi</strong> · classi nelle celle' : 'Calendario della <strong>2ª B</strong> · docenti nelle celle';
+    lessonCells.forEach((cell, i) => {
+      const v = teacher ? classes[i] : names[i];
+      const isGap = teacher && [6, 20].includes(i);
+      cell.innerHTML = isGap ? '<span class="gap">Buco</span>' : v ? `<span class="lesson">${v}</span>` : '<span class="empty">—</span>';
+    });
+  }
+  buttons.forEach((button, i) => button.addEventListener('click', () => {
+    buttons.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+    button.classList.add('active'); button.setAttribute('aria-selected','true'); render(i === 1 ? 'teacher' : 'class');
+  }));
+})();
+</script>

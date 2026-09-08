@@ -68,6 +68,27 @@ h1 {
 
 .panel { padding: 22px; }
 
+.calendar-panel { scroll-margin-top: 16px; }
+.calendar-header, .calendar-controls { display: flex; justify-content: space-between; align-items: end; gap: 16px; }
+.calendar-header { align-items: center; margin-bottom: 18px; }
+.calendar-tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(31, 36, 48, .08); }
+.calendar-tabs button { border: 0; border-radius: 9px; background: transparent; padding: 8px 12px; }
+.calendar-tabs button.is-active { background: white; color: var(--accent); box-shadow: 0 1px 3px rgba(31,36,48,.14); }
+.calendar-subject-field { width: min(100%, 330px); }
+.calendar-subject-field select { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: white; color: var(--text); font: inherit; }
+.calendar-exports { display: flex; flex-wrap: wrap; gap: 8px; }
+.calendar-exports button { padding: 9px 12px; font-size: 13px; }
+.calendar-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.75); }
+#calendarTable { min-width: 700px; table-layout: fixed; }
+#calendarTable th, #calendarTable td { width: auto; min-width: 120px; max-width: none; padding: 9px; white-space: normal; text-align: center; }
+#calendarTable th:first-child, #calendarTable td.period-label { width: 112px; min-width: 112px; max-width: 112px; text-align: left; cursor: default; }
+#calendarTable td { height: 58px; color: var(--muted); }
+#calendarTable td.lesson-cell { background: rgba(31, 111, 120, .11); color: var(--text); font-weight: 700; }
+#calendarTable td.calendar-gap { background: var(--violet); color: #4d2a72; font-weight: 700; }
+.period-time { display: block; margin-top: 3px; font-size: 10px; font-weight: 400; color: var(--muted); }
+.calendar-legend { display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; color: var(--muted); font-size: 12px; margin: 12px 0 0; }
+.legend-swatch { display: inline-block; width: 13px; height: 13px; border-radius: 4px; vertical-align: -2px; margin-right: 4px; }.lesson-swatch { background: rgba(31, 111, 120, .25); }.gap-swatch { background: var(--violet); }
+
 .grid {
   display: grid;
   gap: 16px;
@@ -344,4 +365,5 @@ td.group-break, th.group-break { border-right: 3px solid rgba(31, 36, 48, 0.45);
   .preview-info { justify-items: start; text-align: left; }
   .teacher-details { max-width: 100%; }
   .teacher-detail-row { justify-content: flex-start; }
+  .calendar-header, .calendar-controls { align-items: stretch; flex-direction: column; }
 }

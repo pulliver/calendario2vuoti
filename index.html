@@ -10,7 +10,7 @@
     <main class="shell">
       <section class="hero">
         <div class="eyebrow">Importa, normalizza, esporta</div>
-        <h1>Sovrapposizioni v3</h1>
+        <h1>Sovrapposizioni v4</h1>
         <p>
           orario docente periodo a classe periodo
         </p>
@@ -49,6 +49,33 @@
         </div>
       </section>
 
+      <section id="calendarPanel" class="panel calendar-panel" hidden>
+        <div class="calendar-header">
+          <div>
+            <div class="eyebrow">Consulta orario</div>
+            <h2>Calendario settimanale</h2>
+          </div>
+          <div class="calendar-tabs" role="tablist" aria-label="Tipo di calendario">
+            <button id="classCalendarTab" class="is-active" type="button" role="tab" aria-selected="true">Per classe</button>
+            <button id="teacherCalendarTab" type="button" role="tab" aria-selected="false">Per docente</button>
+          </div>
+        </div>
+        <div class="calendar-controls">
+          <label class="field calendar-subject-field">
+            <span id="calendarSubjectLabel">Classe</span>
+            <select id="calendarSubjectSelect" aria-label="Seleziona classe"></select>
+          </label>
+          <div class="calendar-exports" aria-label="Esporta calendario">
+            <button id="calendarImageBtn" type="button">Esporta immagine</button>
+            <button id="calendarXlsxBtn" type="button">Esporta Excel</button>
+            <button id="calendarPdfBtn" type="button">Esporta PDF</button>
+          </div>
+        </div>
+        <p id="calendarDescription" class="status"></p>
+        <div class="calendar-table-wrap"><table id="calendarTable"></table></div>
+        <p id="calendarLegend" class="calendar-legend" hidden><span class="legend-swatch lesson-swatch"></span>Lezione <span class="legend-swatch gap-swatch"></span>Buco tra due lezioni</p>
+      </section>
+
       <section id="supportPanel" class="panel preview support-panel" hidden>
         <div class="preview-header">
           <div class="preview-title">
@@ -84,6 +111,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>
