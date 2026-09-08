@@ -75,11 +75,16 @@ h1 {
 .calendar-tabs button { border: 0; border-radius: 9px; background: transparent; padding: 8px 12px; }
 .calendar-tabs button.is-active { background: white; color: var(--accent); box-shadow: 0 1px 3px rgba(31,36,48,.14); }
 .calendar-subject-field { width: min(100%, 330px); }
-.calendar-all-toggle { display: inline-flex; align-items: center; gap: 8px; margin-right: auto; padding-bottom: 11px; font-size: 13px; font-weight: 700; cursor: pointer; }
-.calendar-all-toggle input { width: 36px; height: 20px; accent-color: var(--accent); cursor: pointer; }
+.calendar-all-toggle { display: inline-flex; align-items: center; gap: 9px; margin-left: 2px; padding-bottom: 10px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.calendar-all-toggle input { appearance: none; width: 42px; height: 23px; margin: 0; border: 1px solid rgba(31,111,120,.35); border-radius: 999px; background: rgba(31,111,120,.13); position: relative; cursor: pointer; transition: background .2s ease, border-color .2s ease; }
+.calendar-all-toggle input::after { content: ""; position: absolute; width: 17px; height: 17px; left: 2px; top: 2px; border-radius: 50%; background: #fff; box-shadow: 0 2px 5px rgba(31,36,48,.22); transition: transform .2s ease; }
+.calendar-all-toggle input:checked { background: rgba(31,111,120,.72); border-color: rgba(31,111,120,.82); }
+.calendar-all-toggle input:checked::after { transform: translateX(19px); }
+.calendar-all-toggle input:focus-visible { outline: 3px solid rgba(31,111,120,.28); outline-offset: 2px; }
 .calendar-subject-field select { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: white; color: var(--text); font: inherit; }
 .calendar-exports { display: flex; flex-wrap: wrap; gap: 8px; }
-.calendar-exports button { padding: 9px 12px; font-size: 13px; }
+.calendar-exports button { padding: 9px 12px; font-size: 13px; white-space: nowrap; }
+#calendarImageBtn { width: 150px; } #calendarXlsxBtn { width: 132px; } #calendarPdfBtn { width: 148px; }
 .calendar-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.75); }
 #calendarTable { min-width: 700px; table-layout: fixed; }
 #calendarTable th, #calendarTable td { width: auto; min-width: 120px; max-width: none; padding: 9px; white-space: normal; text-align: center; background: #fff; }
