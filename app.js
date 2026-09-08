@@ -247,7 +247,7 @@ function renderSupportPreview() {
   supportTableEl.replaceChildren(thead, tbody);
 }
 
-function renderTeacherAssignments(cell, teacherNames) {
+function renderTeacherAssignments(cell, teacherNames, { showSubject = true } = {}) {
   cell.replaceChildren();
   teacherNames.forEach((teacherName, index) => {
     const assignment = document.createElement("div");
@@ -257,7 +257,7 @@ function renderTeacherAssignments(cell, teacherNames) {
     teacher.className = "teacher-cell-name";
     teacher.textContent = normalizedTeacherName;
     assignment.appendChild(teacher);
-    const subject = teacherSubjects.get(teacherKey(normalizedTeacherName));
+    const subject = showSubject ? teacherSubjects.get(teacherKey(normalizedTeacherName)) : "";
     if (subject) {
       const subjectEl = document.createElement("span");
       subjectEl.className = "teacher-cell-subject";
@@ -304,7 +304,7 @@ function renderPreview() {
     tr.appendChild(classTd);
     row.periods.forEach((value, index) => {
       const td = document.createElement("td");
-      if (value) renderTeacherAssignments(td, value.split(" / "));
+      if (value) renderTeacherAssignments(td, value.split(" / "), { showSubject: false });
       td.title = value || "Nessuna assegnazione";
       td.dataset.row = String(outputRows.indexOf(row) + 1);
       td.dataset.col = String(index + 1);
