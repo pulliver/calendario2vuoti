@@ -582,27 +582,47 @@ async function exportCalendarXlsx() {
 
 async function exportCalendarPdf() {
   if (calendarAll) return exportAllCalendarsPdf();
-  const canvas = await calendarCanvas();
   if (!window.jspdf) throw new Error("La libreria PDF non è disponibile.");
-  const pdf = new window.jspdf.jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
-  const pageWidth = pdf.internal.pageSize.getWidth(), pageHeight = pdf.internal.pageSize.getHeight();
-  const ratio = Math.min((pageWidth - 36) / canvas.width, (pageHeight - 36) / canvas.height);
-  pdf.addImage(canvas.toDataURL("image/png"), "PNG", 18, 18, canvas.width * ratio, canvas.height * ratio); pdf.save(calendarFileName("pdf"));
+  const pdf = new window.jspdf.jsPDF({ orientation: "landscape", unit: "pt", format: "a4", compress: true });
+  drawCalendarPdfPage(pdf, calendarExportRows(), calendarDescription.textContent);
+  pdf.save(calendarFileName("pdf"));
+}
+
+function drawCalendarPdfPage(pdf, rows, title) {
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const margin = 22, titleY = 30, tableY = 48, rowHeight = 66;
+  const firstColumn = 104, remainingWidth = pageWidth - margin * 2 - firstColumn, dayColumn = remainingWidth / 5;
+  pdf.setFont("helvetica", "bold"); pdf.setFontSize(18); pdf.setTextColor(31, 36, 48);
+  pdf.text(title, margin, titleY);
+  rows.forEach((row, rowIndex) => row.forEach((value, columnIndex) => {
+    const x = columnIndex === 0 ? margin : margin + firstColumn + (columnIndex - 1) * dayColumn;
+    const y = tableY + rowIndex * rowHeight;
+    const width = columnIndex === 0 ? firstColumn : dayColumn;
+    if (rowIndex === 0 || columnIndex === 0) {
+      pdf.setFillColor(238, 232, 247);
+      pdf.rect(x, y, width, rowHeight, "F");
+    }
+    pdf.setDrawColor(190, 190, 198); pdf.setLineWidth(.45); pdf.rect(x, y, width, rowHeight);
+    const lines = value ? pdf.splitTextToSize(value, width - 10) : [];
+    pdf.setFont("helvetica", rowIndex === 0 || columnIndex === 0 || value ? "bold" : "normal");
+    pdf.setFontSize(rowIndex === 0 ? 10 : 9);
+    pdf.setTextColor(31, 36, 48);
+    const lineHeight = 11;
+    const firstY = y + rowHeight / 2 - ((lines.length - 1) * lineHeight) / 2 + 3;
+    lines.forEach((line, lineIndex) => pdf.text(line, x + width / 2, firstY + lineIndex * lineHeight, { align: "center" }));
+  }));
 }
 
 async function exportAllCalendarsPdf() {
   const subjects = calendarSubjects();
   if (!subjects.length || !window.jspdf) throw new Error("Nessun calendario disponibile per l'esportazione PDF.");
   const originalSubject = calendarSubjectSelect.value;
-  const pdf = new window.jspdf.jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
-  const pageWidth = pdf.internal.pageSize.getWidth(), pageHeight = pdf.internal.pageSize.getHeight();
+  const pdf = new window.jspdf.jsPDF({ orientation: "landscape", unit: "pt", format: "a4", compress: true });
   for (let index = 0; index < subjects.length; index += 1) {
     calendarSubjectSelect.value = subjects[index];
     renderCalendar();
-    const canvas = await calendarCanvas();
     if (index > 0) pdf.addPage();
-    const ratio = Math.min((pageWidth - 36) / canvas.width, (pageHeight - 36) / canvas.height);
-    pdf.addImage(canvas.toDataURL("image/png"), "PNG", 18, 18, canvas.width * ratio, canvas.height * ratio);
+    drawCalendarPdfPage(pdf, calendarExportRows(), calendarDescription.textContent);
   }
   calendarSubjectSelect.value = originalSubject;
   renderCalendar();
