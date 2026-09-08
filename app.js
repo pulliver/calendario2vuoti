@@ -252,10 +252,18 @@ function renderTeacherAssignments(cell, teacherNames) {
   teacherNames.forEach((teacherName, index) => {
     const assignment = document.createElement("div");
     assignment.className = "teacher-assignment";
+    const normalizedTeacherName = teacherName.trim();
     const teacher = document.createElement("span");
     teacher.className = "teacher-cell-name";
-    teacher.textContent = teacherName.trim();
+    teacher.textContent = normalizedTeacherName;
     assignment.appendChild(teacher);
+    const subject = teacherSubjects.get(teacherKey(normalizedTeacherName));
+    if (subject) {
+      const subjectEl = document.createElement("span");
+      subjectEl.className = "teacher-cell-subject";
+      subjectEl.textContent = subject;
+      assignment.appendChild(subjectEl);
+    }
     if (index < teacherNames.length - 1) assignment.classList.add("teacher-assignment-separated");
     cell.appendChild(assignment);
   });
@@ -511,7 +519,7 @@ function renderSubjectsTable() {
 }
 
 async function handleSubjectFile(file) {
-  const rows = (await parseFile(file)).map((row) => row.map(normalizeCell)).filter((row) => row.some(Boolean));
+  const rows = (await parseFile(file, { updateSourceName: false })).map((row) => row.map(normalizeCell)).filter((row) => row.some(Boolean));
   if (!rows.length) throw new Error("Il file materie non contiene righe leggibili.");
   const header = rows[0].map(teacherKey);
   const nameIndex = header.findIndex((cell) => cell.includes("nome") || cell.includes("docente") || cell === "insegnante");
@@ -726,8 +734,8 @@ async function exportAllCalendarsPdf() {
   pdf.save(`${sourceName}-${calendarMode === "class" ? "classi" : "docenti"}-tutti.pdf`);
 }
 
-async function parseFile(file) {
-  sourceName = file.name.replace(/\.[^.]+$/, "");
+async function parseFile(file, { updateSourceName = true } = {}) {
+  if (updateSourceName) sourceName = file.name.replace(/\.[^.]+$/, "");
   const ext = file.name.split(".").pop().toLowerCase();
   if (ext === "csv") {
     const text = await file.text();
